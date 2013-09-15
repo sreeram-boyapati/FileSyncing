@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
+
 public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 	
 	SyncerRemote() throws RemoteException{
@@ -35,7 +36,7 @@ public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 	}
 
 	@Override
-	public int openFile(String fileName) throws RemoteException {
+	public int openFile(String filename) throws RemoteException {
 		boolean file_exists, lock_exists;
 		try {
 			File file = new File(filename);
@@ -75,7 +76,7 @@ public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 		}
 	}
 	
-	public int closeFile(String fileName) throws RemoteException {
+	public int closeFile(String filename) throws RemoteException {
 		
 		boolean file_exists, lock_exists;
 		try {
@@ -122,7 +123,7 @@ public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 	}
 
 	@Override
-	public String sendMsg(String filename, String Msg) throws RemoteException {
+	public int sendMsg(String filename, String Msg) throws RemoteException {
 		PrintWriter out = null;
 		try {
 			out = new PrintWriter(filename);
