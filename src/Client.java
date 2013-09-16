@@ -31,9 +31,12 @@ public class Client implements ActionListener{
 	static JButton Open_FileButton;
 	static JTextArea console_window;
 	static Syncer stub;
+	static JLabel CloseFile_Label;
+	static JTextField CloseFile_Name;
+	static JButton CloseFile_Button;
 	public static void main(String args[]) throws MalformedURLException, RemoteException, NotBoundException
 	{
-		stub = (Syncer)Naming.lookup("rmi://localhost:5000/sonoo");
+		//stub = (Syncer)Naming.lookup("rmi://localhost:5000/sonoo");
 		Initialize_UI();
 		
 	
@@ -69,6 +72,9 @@ public class Client implements ActionListener{
 		open_file_field = new JTextField("Enter Name of File");
 		Open_FileButton = new JButton("Open File");
 		console_window = new JTextArea();
+		CloseFile_Label = new JLabel("Close File");
+		CloseFile_Name = new JTextField("Enter Name of File");
+		CloseFile_Button = new JButton("Close File");
 		gLayout.setVerticalGroup(gLayout.createSequentialGroup()
 			.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
 					.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -92,8 +98,13 @@ public class Client implements ActionListener{
 					.addComponent(Open_FileButton))
 			.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
 					.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-						.addComponent(Console)
-						.addComponent(console_window))));
+							.addComponent(CloseFile_Label)
+							.addComponent(CloseFile_Name))
+					.addComponent(CloseFile_Button))
+			.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+					.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+							.addComponent(Console)
+							.addComponent(console_window))));
 			
 		gLayout.setHorizontalGroup(gLayout.createSequentialGroup()
 				.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -101,18 +112,21 @@ public class Client implements ActionListener{
 						.addComponent(recv_message)
 						.addComponent(createFile_label)
 						.addComponent(OpenFileLabel)
+						.addComponent(CloseFile_Label)
 						.addComponent(Console))
 				.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addComponent(send_msg)
 						.addComponent(recv_msg)
 						.addComponent(Name_of_file)
 						.addComponent(open_file_field)
+						.addComponent(CloseFile_Name)
 						.addComponent(console_window))
 				.addGroup(gLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addComponent(send)
 						.addComponent(recv)
 						.addComponent(createFileButton)
-						.addComponent(Open_FileButton)));
+						.addComponent(Open_FileButton)
+						.addComponent(CloseFile_Button)));
 		comm.setLayout(gLayout);
 		comm.setVisible(true);
 		comm.setPreferredSize(new Dimension(500, 650));
@@ -149,12 +163,12 @@ public class Client implements ActionListener{
 			}
 			if(Event.getSource() == send){
 				String message = send_msg.getText();
-				String Status = stub.sendMsg(message);
+				String Status = stub.sendMsg(open_file_field.getText(), message);// Open the file you want to send a message to...
 				console_window.setText(Status);
 			}
 			if(Event.getSource() == recv){
 				
-				String Message = stub.recvMsg();
+				String Message = stub.recvMsg(open_file_field.getText()); //Open the file you want to recieve a message from ...
 				recv_msg.setText(Message);
 				if(Message != null){
 					console_window.setText("Message Received Succesfully");

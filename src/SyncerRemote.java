@@ -8,6 +8,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 	
+	File file;
+	File lock;
 	SyncerRemote() throws RemoteException{
 		super();
 		
@@ -18,29 +20,32 @@ public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 	}
 
 	@Override
-	public int createFile(String fileName) throws RemoteException {
+	public String createFile(String fileName) throws RemoteException {
 		try {
-			File file = new File(fileName);
+			file = new File(fileName);
 		    if (file.createNewFile()) {
-		    	return 0; // New file successfully created. 		        
+		    	return "File: "+ fileName + " Successfully Created."; // New file successfully created. 		        
 		    }
 		    else {
-		    	return 1; // File already exists. 
+		    	return "File: "+ fileName + " Successfully Created."; // File already exists. 
 		    }
 	    } 
 		
 		catch (IOException e) {
 			  System.err.println(e.getMessage());
-		      return -1; // Cannot create file, Exception thrown. 
+		      return e.toString(); // Cannot create file, Exception thrown. 
 		}
 	}
 
 	@Override
-	public int openFile(String filename) throws RemoteException {
+	public String openFile(String filename) throws RemoteException {
 		boolean file_exists, lock_exists;
 		try {
-			File file = new File(filename);
-			File lock = new File(filename+"~lock");
+			if(!file.exists())
+			{
+			file = new File(filename);
+			lock = new File(filename+"~lock");
+			}
 			
 			if(file.exists()) {
 				file_exists = true; // File exists.
@@ -57,26 +62,26 @@ public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 		    }		    
 		    
 		    if(file_exists&&(!lock_exists)) {
-		    	return 0; // File exists and is free. 
+		    	return "File Exists and is not Free"; // File exists and is free. 
 		    }		    
 		    else if(file_exists&&lock_exists) {
-		    	return 1; // File exists and is being used.
+		    	return "File Exists and is being Used"; // File exists and is being used.
 		    }
 		    else if(!file_exists&&!lock_exists) {
-		    	return 2; // File does not exist on system at all. 
+		    	return "File Doesnot Exist"; // File does not exist on system at all. 
 		    }
 		    else {
-		    	return -1; // File does not exist but lock exists, inconsistency has occured. 
+		    	return "Inconsistency as Lock Exists"; // File does not exist but lock exists, inconsistency has occured. 
 		    }
 		    	
 	    }  		
 		catch (Exception e) {
 			  System.err.println(e.getMessage());
-		      return -2; // Cannot check for file or lock, Exception thrown. 
+		      return e.getMessage(); // Cannot check for file or lock, Exception thrown. 
 		}
 	}
 	
-	public int closeFile(String filename) throws RemoteException {
+	public String closeFile(String filename) throws RemoteException {
 		
 		boolean file_exists, lock_exists;
 		try {
@@ -98,41 +103,41 @@ public class SyncerRemote extends UnicastRemoteObject implements Syncer{
 	    	}
 		
 			if(file_exists&&(!lock_exists)) {
-	    		return 0; // File exists and is free. 
+	    		return "File is in use"; // File exists and is free. 
 	    	}		    
 	    	else if(file_exists&&lock_exists) {
 	    		if(lock.delete()) {
-	    			return 1; // File exists and Lock deleted.
+	    			return "Lock Deleted"; // File exists and Lock deleted.
 	    		}
 	    		else {
-	    			return 2; // Could not delete lock. 
+	    			return "Could Not Delete Lock"; // Could not delete lock. 
 	    		}
 	    	}
 	    	else if(!file_exists&&!lock_exists) {
-	    		return -1; // File does not exist on system at all. 
+	    		return "File Doesnot Exist"; // File does not exist on system at all. 
 	    	}
 	    	else 	{
-	    		return -2; // File does not exist but lock exists, inconsistency has occured. 
+	    		return "Inconsistent File"; // File does not exist but lock exists, inconsistency has occured. 
 	    	}
 		}
 		
 		catch (Exception e) {
 			  System.err.println(e.getMessage());
-		      return -3; // Cannot create file, Exception thrown. 
+		      return e.getMessage(); // Cannot create file, Exception thrown. 
 		}
 	}
 
 	@Override
-	public int sendMsg(String filename, String Msg) throws RemoteException {
+	public String sendMsg(String filename, String Msg) throws RemoteException {
 		PrintWriter out = null;
 		try {
 			out = new PrintWriter(filename);
 			out.println(Msg);
-			return 0;
+			return "Message Successfully written to File: "+ filename;
 		}
 		catch (Exception e) {
 			  System.err.println(e.getMessage());
-		      return -1; // Cannot write to file. 
+		      return "Message couldnot be written"; // Cannot write to file. 
 		}
 		finally {
 			out.close();
